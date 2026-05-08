@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIENE — Portfolio Intelligence Platform</title>
+  <meta name="description"
+    content="Plateforme professionnelle d'optimisation de portefeuille. Théorie de Markowitz, simulations Monte-Carlo et analyse statistique avancée.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- Ambient background effects -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+  <div class="noise-overlay"></div>
+
+  <div class="app-layout">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M14 2L26 8v12l-12 6L2 20V8l12-6z" stroke="url(#g1)" stroke-width="2" fill="none" />
+            <path d="M14 8l6 3v6l-6 3-6-3v-6l6-3z" fill="url(#g1)" opacity="0.3" />
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="28" y2="28">
+                <stop stop-color="#60A5FA" />
+                <stop offset="1" stop-color="#34D399" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">DIENE</span>
+          <span class="brand-tag">PORTFOLIO ANALYTICS</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item" data-panel="description" onclick="switchTab('description',this)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          </svg>
+          <span>Le Projet</span>
+        </button>
+        <button class="nav-item active" data-panel="overview" onclick="switchTab('overview',this)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" />
+          </svg>
+          <span>Vue d'ensemble</span>
+        </button>
+        <button class="nav-item" data-panel="stats" onclick="switchTab('stats',this)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 3v18h18" />
+            <path d="M7 16l4-6 4 3 5-7" />
+          </svg>
+          <span>Statistiques</span>
+        </button>
+        <button class="nav-item" data-panel="corr" onclick="switchTab('corr',this)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
+          </svg>
+          <span>Corrélation</span>
+        </button>
+        <button class="nav-item" data-panel="markowitz" onclick="switchTab('markowitz',this)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 3a9 9 0 0 1 0 18" />
+            <path d="M12 7v10M8 9l4-2 4 2" />
+          </svg>
+          <span>Markowitz</span>
+        </button>
+        <button class="nav-item" data-panel="mc" onclick="switchTab('mc',this)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 19l4-6 4 4 4-8 4 5" />
+            <path d="M4 15l4-3 4 2 4-5 4 3" opacity="0.4" />
+          </svg>
+          <span>Monte-Carlo</span>
+        </button>
+        <button class="nav-item" data-panel="risk" onclick="switchTab('risk',this)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+            <path d="M12 8v4l3 3" />
+            <path d="M8.5 2.5L6 5M15.5 2.5L18 5" />
+          </svg>
+          <span>Risk Mgmt</span>
+        </button>
+        <button class="nav-item" data-panel="analyse" onclick="switchTab('analyse',this)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
+          <span>Analyse</span>
+        </button>
+        <button class="nav-item" data-panel="tests" onclick="switchTab('tests',this)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 3h6l-2 7h4L7 21l2-8H5l4-10z" />
+          </svg>
+          <span>Tests stats</span>
+        </button>
+        <button class="nav-item" data-panel="about" onclick="switchTab('about',this)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <span>À propos</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="strategy-badge">
+          <div class="badge-dot"></div>
+          <span>MSR Strategy Active</span>
+        </div>
+        <div class="sidebar-meta">
+          <span>CAC40 · 2000–2026</span>
+          <span id="liveClock"></span>
+        </div>
+
+        <div class="user-profile">
+          <img src="profile.jpg" alt="DIENE" class="profile-img">
+          <div class="profile-info">
+            <span class="profile-name">DIENE</span>
+            <span class="profile-role">Portfolio Manager</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title" id="pageTitle">Vue d'ensemble</h1>
+          <div class="breadcrumb">
+            <span>DIENE</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+            <span class="bc-active">Dashboard</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="invest-badge">
+            <span class="invest-label">Capital initial</span>
+            <div class="invest-input-wrap">
+              <input type="text" id="capitalInput" class="invest-input" value="10000" inputmode="numeric">
+              <span class="invest-currency">€</span>
+            </div>
+          </div>
+          <button class="btn-secondary" id="btnCsv">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            CSV
+          </button>
+          <button class="btn-primary" id="btnPdf">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            Export PDF
+          </button>
+        </div>
+      </header>
+
+      <!-- ===== PANELS ===== -->
+      <div class="panels-container">
+
+        <!-- LE PROJET -->
+        <section id="description" class="panel">
+          <div class="card card--lg">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">Architecture & Optimisation d'un Portefeuille Institutionnel</h2>
+                <p class="card-subtitle">Plateforme quantitative développée par Alioune Badara Ibn Abu Talib Diène</p>
+              </div>
+            </div>
+            <div style="padding: 24px;">
+              <h3 style="color: var(--blue); margin-bottom: 16px; font-size: 1.1rem; border-bottom: 1px dashed rgba(59, 130, 246, 0.2); padding-bottom: 8px;">Objectif stratégique</h3>
+              <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
+                Concevoir une approche complète d’analyse, de modélisation et d’optimisation à travers des méthodes quantitatives, statistiques et algorithmiques de haut niveau.
+              </p>
+
+              <div class="grid-2" style="gap: 24px; margin-bottom: 24px;">
+                <ul style="color: var(--text-secondary); line-height: 1.8; list-style: none; padding: 0;">
+                  <li style="margin-bottom: 12px;"><span style="color: var(--blue); font-weight: bold; margin-right: 8px;">01.</span> Analyse et interprétation de données complexes.</li>
+                  <li style="margin-bottom: 12px;"><span style="color: var(--blue); font-weight: bold; margin-right: 8px;">02.</span> Développement de modèles statistiques multivariés.</li>
+                  <li style="margin-bottom: 12px;"><span style="color: var(--blue); font-weight: bold; margin-right: 8px;">03.</span> Résolution de problèmes d’optimisation sous contraintes.</li>
+                </ul>
+                <ul style="color: var(--text-secondary); line-height: 1.8; list-style: none; padding: 0;">
+                  <li style="margin-bottom: 12px;"><span style="color: var(--blue); font-weight: bold; margin-right: 8px;">04.</span> Simulation et évaluation de scénarios de performance.</li>
+                  <li style="margin-bottom: 12px;"><span style="color: var(--blue); font-weight: bold; margin-right: 8px;">05.</span> Conception de solutions techniques robustes.</li>
+                  <li style="margin-bottom: 12px;"><span style="color: var(--blue); font-weight: bold; margin-right: 8px;">06.</span> Synthèse et présentation de résultats scientifiques.</li>
+                </ul>
+              </div>
+
+              <h3 style="color: var(--blue); margin-bottom: 12px; font-size: 1.1rem;">Méthodologie quantitative</h3>
+              <p style="color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6;">
+                La plateforme analyse dynamiquement un univers d'investissement diversifié (CAC40) pour proposer une stratégie optimale maximisant les rendements ajustés au risque (MSR).
+              </p>
+              
+              <div style="background: rgba(255,255,255,0.02); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                <p style="font-size: 0.85rem; color: var(--text-tertiary); font-style: italic;">
+                  Données extraites en temps réel · Modélisation Markowitz · Simulations Monte-Carlo (10k+ itérations) · Risk Targeting Target: 25% Vol.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- A PROPOS -->
+        <section id="about" class="panel">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">Profil Professionnel</h2>
+                <p class="card-subtitle">Expertise en Ingénierie Financière</p>
+              </div>
+            </div>
+            <div style="padding: 40px 24px; text-align: center;">
+              <img src="profile.jpg" alt="Alioune Badara Diene" style="width: 140px; height: 140px; border-radius: 50%; border: 4px solid var(--blue); margin-bottom: 20px; object-source: cover; box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);">
+              <h3 style="color: var(--white); font-size: 1.8rem; margin-bottom: 8px; font-family: 'Space Grotesk', sans-serif;">Alioune Badara Ibn Abu Talib Diène</h3>
+              <p style="color: var(--blue); font-weight: 500; font-size: 1rem; margin-bottom: 30px; letter-spacing: 0.5px;">Quantitative Finance Engineer | Data Scientist | Risk Analyst</p>
+              
+              <div style="display: flex; justify-content: center; gap: 24px; margin-bottom: 40px;">
+                <a href="https://www.linkedin.com/in/alioune-badara-diene/" target="_blank" style="color: var(--text-secondary); transition: color 0.3s;" onmouseover="this.style.color='#3B82F6'" onmouseout="this.style.color='var(--text-secondary)'"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
+                <a href="#" style="color: var(--text-secondary); transition: color 0.3s;" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='var(--text-secondary)'"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.372.79 1.103.79 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg></a>
+                <a href="#" style="color: var(--text-secondary); transition: color 0.3s;" onmouseover="this.style.color='#1DA1F2'" onmouseout="this.style.color='var(--text-secondary)'"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+                <a href="#" style="color: var(--text-secondary); transition: color 0.3s;" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='var(--text-secondary)'"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M13.54 12a6.8 6.8 0 0 1-6.77 6.82A6.8 6.8 0 0 1 0 12a6.8 6.8 0 0 1 6.77-6.82A6.8 6.8 0 0 1 13.54 12zM20.96 12c0 3.54-1.51 6.41-3.38 6.41s-3.38-2.87-3.38-6.41 1.51-6.41 3.38-6.41 3.38 2.87 3.38 6.41zM24 12c0 3.17-.53 5.75-1.19 5.75s-1.19-2.58-1.19-5.75.53-5.75 1.19-5.75S24 8.83 24 12z"/></svg></a>
+              </div>
+
+              <div style="border-top: 1px solid rgba(148, 163, 184, 0.1); padding-top: 24px;">
+                <p style="color: var(--text-tertiary); font-size: 0.85rem; letter-spacing: 0.5px;">© 2026 — Alioune Badara Ibn Abu Talib Diène — Tous droits réservés</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- OVERVIEW -->
+        <section id="overview" class="panel active">
+          <div class="kpi-grid">
+            <div class="kpi-card" data-delay="0">
+              <div class="kpi-icon kpi-icon--green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                  <polyline points="17 6 23 6 23 12" />
+                </svg>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">Rendement annualisé</span>
+                <span class="kpi-value kpi-value--green" data-count="15.82">0.00<small>%</small></span>
+                <span class="kpi-sub">Performance du portefeuille MSR</span>
+              </div>
+              <div class="kpi-spark" id="sparkReturn"></div>
+            </div>
+            <div class="kpi-card" data-delay="1">
+              <div class="kpi-icon kpi-icon--amber">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">Volatilité</span>
+                <span class="kpi-value kpi-value--amber" data-count="24.67">0.00<small>%</small></span>
+                <span class="kpi-sub">Risque annualisé σ</span>
+              </div>
+              <div class="kpi-spark" id="sparkVol"></div>
+            </div>
+            <div class="kpi-card" data-delay="2">
+              <div class="kpi-icon kpi-icon--blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
+                </svg>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">Sharpe Ratio</span>
+                <span class="kpi-value kpi-value--blue" data-count="0.56">0.00</span>
+                <span class="kpi-sub">Rendement ajusté au risque</span>
+              </div>
+              <div class="kpi-spark" id="sparkSharpe"></div>
+            </div>
+            <div class="kpi-card" data-delay="3">
+              <div class="kpi-icon kpi-icon--rose">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+                  <polyline points="17 18 23 18 23 12" />
+                </svg>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">Max Drawdown</span>
+                <span class="kpi-value kpi-value--rose" data-count="-16.50">0.00<small>%</small></span>
+                <span class="kpi-sub">Perte maximale historique</span>
+              </div>
+              <div class="kpi-spark" id="sparkDD"></div>
+            </div>
+          </div>
+
+          <div class="grid-2-1">
+            <div class="card card--lg">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Efficient Frontier</h2>
+                  <p class="card-subtitle">Optimisation Markowitz · 10 000 portefeuilles simulés</p>
+                </div>
+                <div class="card-badge">Live</div>
+              </div>
+              <div id="frontierChart" class="chart-container"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Allocation MSR</h2>
+                  <p class="card-subtitle">Maximum Sharpe Ratio · Contrainte 25% max</p>
+                </div>
+              </div>
+              <div class="alloc-list">
+                <div class="alloc-item" data-delay="0">
+                  <div class="alloc-header">
+                    <div class="alloc-name">
+                      <div class="alloc-dot alloc-dot--blue"></div><span>LVMH</span>
+                    </div><span class="alloc-pct">22.40%</span>
+                  </div>
+                  <div class="alloc-bar">
+                    <div class="alloc-fill alloc-fill--blue" data-width="22"></div>
+                  </div>
+                </div>
+                <div class="alloc-item" data-delay="1">
+                  <div class="alloc-header">
+                    <div class="alloc-name">
+                      <div class="alloc-dot alloc-dot--green"></div><span>Hermès</span>
+                    </div><span class="alloc-pct">20.15%</span>
+                  </div>
+                  <div class="alloc-bar">
+                    <div class="alloc-fill alloc-fill--green" data-width="20"></div>
+                  </div>
+                </div>
+                <div class="alloc-item" data-delay="2">
+                  <div class="alloc-header">
+                    <div class="alloc-name">
+                      <div class="alloc-dot alloc-dot--amber"></div><span>Airbus</span>
+                    </div><span class="alloc-pct">15.80%</span>
+                  </div>
+                  <div class="alloc-bar">
+                    <div class="alloc-fill alloc-fill--amber" data-width="16"></div>
+                  </div>
+                </div>
+                <div class="alloc-item" data-delay="3">
+                  <div class="alloc-header">
+                    <div class="alloc-name">
+                      <div class="alloc-dot alloc-dot--purple"></div><span>L'Oréal</span>
+                    </div><span class="alloc-pct">13.50%</span>
+                  </div>
+                  <div class="alloc-bar">
+                    <div class="alloc-fill alloc-fill--purple" data-width="14"></div>
+                  </div>
+                </div>
+                <div class="alloc-item" data-delay="4">
+                  <div class="alloc-header">
+                    <div class="alloc-name">
+                      <div class="alloc-dot alloc-dot--teal"></div><span>Schneider</span>
+                    </div><span class="alloc-pct">11.20%</span>
+                  </div>
+                  <div class="alloc-bar">
+                    <div class="alloc-fill alloc-fill--teal" data-width="11"></div>
+                  </div>
+                </div>
+                <div class="alloc-item" data-delay="5">
+                  <div class="alloc-header">
+                    <div class="alloc-name">
+                      <div class="alloc-dot alloc-dot--amber"></div><span>BNP · Sanofi · Total</span>
+                    </div><span class="alloc-pct">16.95%</span>
+                  </div>
+                  <div class="alloc-bar">
+                    <div class="alloc-fill alloc-fill--amber" data-width="17"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="alloc-donut-container">
+                <div id="donutChart" class="donut-chart"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Simulations Monte-Carlo</h2>
+                  <p class="card-subtitle">50 000 scénarios · Horizon 252 jours</p>
+                </div>
+              </div>
+              <div id="monteCarloChart" class="chart-container"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Matrice de Corrélation</h2>
+                  <p class="card-subtitle">Pearson · Rendements journaliers</p>
+                </div>
+              </div>
+              <div id="heatmapChart" class="chart-container"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STATS -->
+        <section id="stats" class="panel">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">Statistiques Descriptives</h2>
+                <p class="card-subtitle">Métriques de performance individuelles · Données historiques 2000–2026</p>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Actif</th>
+                    <th>Rendement ann.</th>
+                    <th>Volatilité</th>
+                    <th>Sharpe</th>
+                    <th>Skewness</th>
+                    <th>Kurtosis</th>
+                    <th>VaR 95%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--blue"></div>LVMH
+                      </div>
+                    </td>
+                    <td class="val-green">+16.51%</td>
+                    <td>30.12%</td>
+                    <td class="val-blue">0.45</td>
+                    <td>-0.32</td>
+                    <td>4.87</td>
+                    <td class="val-rose">-2.81%</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--green"></div>Hermès
+                      </div>
+                    </td>
+                    <td class="val-green">+18.72%</td>
+                    <td>28.45%</td>
+                    <td class="val-blue">0.56</td>
+                    <td>-0.15</td>
+                    <td>3.62</td>
+                    <td class="val-rose">-2.48%</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--amber"></div>Airbus
+                      </div>
+                    </td>
+                    <td class="val-green">+17.93%</td>
+                    <td>37.24%</td>
+                    <td class="val-blue">0.40</td>
+                    <td>-0.18</td>
+                    <td>5.23</td>
+                    <td class="val-rose">-3.45%</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--purple"></div>L'Oréal
+                      </div>
+                    </td>
+                    <td class="val-green">+13.85%</td>
+                    <td>24.10%</td>
+                    <td class="val-blue">0.47</td>
+                    <td>-0.08</td>
+                    <td>3.41</td>
+                    <td class="val-rose">-2.15%</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--teal"></div>Schneider
+                      </div>
+                    </td>
+                    <td class="val-green">+15.23%</td>
+                    <td>27.60%</td>
+                    <td class="val-blue">0.46</td>
+                    <td>-0.22</td>
+                    <td>4.15</td>
+                    <td class="val-rose">-2.67%</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--amber"></div>BNP Paribas
+                      </div>
+                    </td>
+                    <td class="val-green">+13.50%</td>
+                    <td>36.80%</td>
+                    <td class="val-blue">0.29</td>
+                    <td>-0.45</td>
+                    <td>6.12</td>
+                    <td class="val-rose">-3.62%</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--purple"></div>Sanofi
+                      </div>
+                    </td>
+                    <td class="val-green">+8.21%</td>
+                    <td>22.15%</td>
+                    <td class="val-blue">0.25</td>
+                    <td>-0.11</td>
+                    <td>3.94</td>
+                    <td class="val-rose">-2.12%</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--teal"></div>TotalEnergies
+                      </div>
+                    </td>
+                    <td class="val-green">+9.87%</td>
+                    <td>25.90%</td>
+                    <td class="val-blue">0.30</td>
+                    <td>-0.28</td>
+                    <td>4.56</td>
+                    <td class="val-rose">-2.53%</td>
+                  </tr>
+                  <tr class="row-highlight">
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--gradient"></div><strong>Portefeuille MSR</strong>
+                      </div>
+                    </td>
+                    <td class="val-green"><strong>+15.82%</strong></td>
+                    <td><strong>24.67%</strong></td>
+                    <td class="val-blue"><strong>0.56</strong></td>
+                    <td><strong>-0.19</strong></td>
+                    <td><strong>3.82</strong></td>
+                    <td class="val-rose"><strong>-2.31%</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- CORRELATION -->
+        <section id="corr" class="panel">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">Matrice de Corrélation</h2>
+                <p class="card-subtitle">Coefficients de Pearson · Rendements logarithmiques journaliers</p>
+              </div>
+            </div>
+            <div id="corrFullChart" class="chart-container chart-container--tall"></div>
+          </div>
+        </section>
+
+        <!-- MARKOWITZ -->
+        <section id="markowitz" class="panel">
+          <div class="kpi-grid kpi-grid--3">
+            <div class="kpi-card" data-delay="0">
+              <div class="kpi-icon kpi-icon--blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M8 12l3 3 5-5" />
+                </svg></div>
+              <div class="kpi-content">
+                <span class="kpi-label">MSR</span>
+                <span class="kpi-value kpi-value--green" data-count="15.82">0<small>%</small></span>
+              </div>
+            </div>
+            <div class="kpi-card" data-delay="1">
+              <div class="kpi-icon kpi-icon--amber"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
+                </svg></div>
+              <div class="kpi-content">
+                <span class="kpi-label">MVP</span>
+                <span class="kpi-value kpi-value--amber" data-count="10.79">0<small>%</small></span>
+              </div>
+            </div>
+            <div class="kpi-card" data-delay="2">
+              <div class="kpi-icon kpi-icon--rose"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2">
+                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                </svg></div>
+              <div class="kpi-content">
+                <span class="kpi-label">CAC40 Benchmark</span>
+                <span class="kpi-value kpi-value--rose" data-count="4.65">0<small>%</small></span>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">Comparaison des Portefeuilles</h2>
+                <p class="card-subtitle">Rendement annualisé par stratégie</p>
+              </div>
+            </div>
+            <div id="markowitzPlotly" class="chart-container chart-container--tall"></div>
+          </div>
+        </section>
+
+        <!-- MONTE-CARLO -->
+        <section id="mc" class="panel">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Distribution des Rendements</h2>
+                  <p class="card-subtitle">50 000 simulations Monte-Carlo</p>
+                </div>
+              </div>
+              <div id="mcDistChart" class="chart-container chart-container--tall"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Probabilité de Gain</h2>
+                  <p class="card-subtitle">Par stratégie</p>
+                </div>
+              </div>
+              <div id="mcBarPlotly" class="chart-container chart-container--tall"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TESTS -->
+        <section id="tests" class="panel">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">Tests Statistiques</h2>
+                <p class="card-subtitle">Normalité (Jarque-Bera) · Stationnarité (ADF) · Autocorrélation (Ljung-Box)</p>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Actif</th>
+                    <th>Jarque-Bera</th>
+                    <th>p-value JB</th>
+                    <th>Normalité</th>
+                    <th>ADF stat</th>
+                    <th>p-value ADF</th>
+                    <th>Stationnarité</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--blue"></div>LVMH
+                      </div>
+                    </td>
+                    <td>487.3</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--red">Non normale</span></td>
+                    <td>-25.41</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--green">Stationnaire</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--green"></div>Hermès
+                      </div>
+                    </td>
+                    <td>312.4</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--red">Non normale</span></td>
+                    <td>-26.33</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--green">Stationnaire</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--amber"></div>Airbus
+                      </div>
+                    </td>
+                    <td>612.8</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--red">Non normale</span></td>
+                    <td>-24.87</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--green">Stationnaire</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--purple"></div>L'Oréal
+                      </div>
+                    </td>
+                    <td>198.6</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--red">Non normale</span></td>
+                    <td>-28.15</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--green">Stationnaire</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--teal"></div>Schneider
+                      </div>
+                    </td>
+                    <td>345.2</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--red">Non normale</span></td>
+                    <td>-25.72</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--green">Stationnaire</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--amber"></div>BNP Paribas
+                      </div>
+                    </td>
+                    <td>892.1</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--red">Non normale</span></td>
+                    <td>-26.12</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--green">Stationnaire</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--purple"></div>Sanofi
+                      </div>
+                    </td>
+                    <td>234.5</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--red">Non normale</span></td>
+                    <td>-27.34</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--green">Stationnaire</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--teal"></div>TotalEnergies
+                      </div>
+                    </td>
+                    <td>356.9</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--red">Non normale</span></td>
+                    <td>-25.98</td>
+                    <td>0.000</td>
+                    <td><span class="badge badge--green">Stationnaire</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- RISK MANAGEMENT -->
+        <section id="risk" class="panel">
+          <div class="kpi-grid kpi-grid--3">
+            <div class="kpi-card" data-delay="0">
+              <div class="kpi-icon kpi-icon--amber"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 8v4l3 3" />
+                </svg></div>
+              <div class="kpi-content">
+                <span class="kpi-label">Volatilité Cible</span>
+                <span class="kpi-value kpi-value--amber" data-count="25.00">0<small>%</small></span>
+                <span class="kpi-sub">Target constant risk</span>
+              </div>
+            </div>
+            <div class="kpi-card" data-delay="1">
+              <div class="kpi-icon kpi-icon--blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg></div>
+              <div class="kpi-content">
+                <span class="kpi-label">Sortino Ratio</span>
+                <span class="kpi-value kpi-value--blue" data-count="0.67">0</span>
+                <span class="kpi-sub">Downside risk-adjusted</span>
+              </div>
+            </div>
+            <div class="kpi-card" data-delay="2">
+              <div class="kpi-icon kpi-icon--green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg></div>
+              <div class="kpi-content">
+                <span class="kpi-label">Calmar Ratio</span>
+                <span class="kpi-value kpi-value--green" data-count="0.81">0</span>
+                <span class="kpi-sub">Return / Max Drawdown</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Volatilité Glissante</h2>
+                  <p class="card-subtitle">Rolling 60 jours · Cible 25% (Constant Risk Targeting)</p>
+                </div>
+              </div>
+              <div id="rollingVolChart" class="chart-container"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Risk Budget par Actif</h2>
+                  <p class="card-subtitle">Contribution marginale au risque du portefeuille</p>
+                </div>
+              </div>
+              <div id="riskBudgetChart" class="chart-container"></div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Drawdown Historique</h2>
+                  <p class="card-subtitle">Profondeur et durée des pertes cumulées</p>
+                </div>
+              </div>
+              <div id="drawdownChart" class="chart-container"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Métriques de Risque Avancées</h2>
+                  <p class="card-subtitle">Méthodologie propriétaire DIENE · Risk Framework v2.0</p>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Métrique</th>
+                      <th>Valeur</th>
+                      <th>Interprétation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>VaR historique 95%</td>
+                      <td class="val-rose">-2.31%</td>
+                      <td>Perte max quotidienne dans 95% des cas</td>
+                    </tr>
+                    <tr>
+                      <td>CVaR (Expected Shortfall)</td>
+                      <td class="val-rose">-2.87%</td>
+                      <td>Perte moyenne au-delà de la VaR</td>
+                    </tr>
+                    <tr>
+                      <td>Volatilité réalisée</td>
+                      <td class="val-green">24.67%</td>
+                      <td>Écart vs cible: <span class="badge badge--green">-0.33%</span></td>
+                    </tr>
+                    <tr>
+                      <td>Sortino Ratio</td>
+                      <td class="val-blue">0.78</td>
+                      <td>Excellent (pénalise uniquement la baisse)</td>
+                    </tr>
+                    <tr>
+                      <td>Calmar Ratio</td>
+                      <td class="val-green">0.96</td>
+                      <td>Rendement / Drawdown max — quasi optimal</td>
+                    </tr>
+                    <tr>
+                      <td>Temps de récupération</td>
+                      <td class="val-green">124 jours</td>
+                      <td>Rapide grâce à la diversification</td>
+                    </tr>
+                    <tr>
+                      <td>Ulcer Index</td>
+                      <td class="val-amber">8.7</td>
+                      <td>Stress réduit (-30% vs portefeuille concentré)</td>
+                    </tr>
+                    <tr>
+                      <td>Beta vs CAC40</td>
+                      <td class="val-blue">0.76</td>
+                      <td>Sensibilité réduite au marché</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ANALYSE & SIGNAUX -->
+        <section id="analyse" class="panel">
+          <!-- Signal Cards -->
+          <div class="kpi-grid kpi-grid--3">
+            <div class="kpi-card" data-delay="0" style="border-left:3px solid var(--green)">
+              <div class="kpi-content">
+                <span class="kpi-label">Signal Global</span>
+                <span class="kpi-value kpi-value--green" style="font-size:1.6rem">FAVORABLE</span>
+                <span class="kpi-sub">Rendement > Volatilité ajustée</span>
+              </div>
+            </div>
+            <div class="kpi-card" data-delay="1" style="border-left:3px solid var(--green)">
+              <div class="kpi-content">
+                <span class="kpi-label">Niveau de Risque</span>
+                <span class="kpi-value kpi-value--green" style="font-size:1.6rem">OPTIMAL</span>
+                <span class="kpi-sub">Vol 24.67% ≈ cible 25%</span>
+              </div>
+            </div>
+            <div class="kpi-card" data-delay="2" style="border-left:3px solid var(--green)">
+              <div class="kpi-content">
+                <span class="kpi-label">Diversification</span>
+                <span class="kpi-value kpi-value--green" style="font-size:1.6rem">FORTE</span>
+                <span class="kpi-sub">8 actifs · max 22.4% par position</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recommandations -->
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Analyse du Portefeuille</h2>
+                  <p class="card-subtitle">Diagnostic quantitatif · Méthodologie DIENE PORT</p>
+                </div>
+              </div>
+              <div class="insight-list">
+                <div class="insight-item insight--positive">
+                  <div class="insight-icon">✓</div>
+                  <div class="insight-body">
+                    <strong>Rendement supérieur au benchmark</strong>
+                    <p>Le portefeuille MSR surperforme le CAC40 de <strong>+11.17%</strong> annualisé (15.82% vs 4.65%).
+                      Le Sharpe ratio de 0.56 dépasse le seuil de 0.50, ce qui confirme une excellente compensation du
+                      risque.</p>
+                  </div>
+                </div>
+                <div class="insight-item insight--positive">
+                  <div class="insight-icon">✓</div>
+                  <div class="insight-body">
+                    <strong>Diversification optimale</strong>
+                    <p>Le portefeuille est réparti sur <strong>8 actifs</strong> avec une contrainte de 25% max par
+                      position. Les 5 premiers actifs représentent 83% du portefeuille avec des secteurs variés (luxe,
+                      aéronautique, cosmétique, industrie, finance, santé, énergie).</p>
+                  </div>
+                </div>
+                <div class="insight-item insight--positive">
+                  <div class="insight-icon">✓</div>
+                  <div class="insight-body">
+                    <strong>Volatilité alignée sur la cible</strong>
+                    <p>Vol réalisée (24.67%) est très proche de la cible de 25% (<strong>-0.33 pts</strong>). La
+                      méthodologie de constant risk targeting est parfaitement respectée. Aucun rééquilibrage
+                      nécessaire.</p>
+                  </div>
+                </div>
+                <div class="insight-item insight--positive">
+                  <div class="insight-icon">✓</div>
+                  <div class="insight-body">
+                    <strong>Max Drawdown réduit</strong>
+                    <p>Le drawdown max de <strong>-16.50%</strong> est largement inférieur au seuil critique de -30%. Le
+                      Calmar ratio (0.96) est excellent. La diversification a réduit le risque de perte maximale de 21%
+                      à 16.5%.</p>
+                  </div>
+                </div>
+                <div class="insight-item insight--warning">
+                  <div class="insight-icon">!</div>
+                  <div class="insight-body">
+                    <strong>Distribution non-gaussienne (risque résiduel)</strong>
+                    <p>Les tests Jarque-Bera rejettent la normalité. Ce risque est <strong>atténué</strong> par la
+                      diversification sur 8 actifs et le monitoring CVaR (-2.87%). La kurtosis du portefeuille (3.82)
+                      est proche de la normale (3.0).</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Recommandations</h2>
+                  <p class="card-subtitle">Actions suggérées pour optimiser le portefeuille</p>
+                </div>
+              </div>
+              <div class="insight-list">
+                <div class="insight-item insight--action">
+                  <div class="insight-icon">1</div>
+                  <div class="insight-body">
+                    <strong>Maintenir l'allocation actuelle</strong>
+                    <p>L'allocation contrainte (max 25%) est optimale. La volatilité est alignée sur la cible.
+                      Rééquilibrer trimestriellement pour maintenir les poids optimaux.</p>
+                  </div>
+                </div>
+                <div class="insight-item insight--action">
+                  <div class="insight-icon">2</div>
+                  <div class="insight-body">
+                    <strong>Monitorer le risk budget en continu</strong>
+                    <p>LVMH + Hermès contribuent ~55% du risque total. Surveiller la corrélation luxe. Si corrélation >
+                      0.80, réduire l'exposition combinée à 35%.</p>
+                  </div>
+                </div>
+                <div class="insight-item insight--action">
+                  <div class="insight-icon">3</div>
+                  <div class="insight-body">
+                    <strong>Implémenter le stop-loss dynamique</strong>
+                    <p>Trailing stop à -12% par position. Avec le drawdown max à -16.5%, un stop à -12% protège 73% du
+                      capital investi en cas de stress.</p>
+                  </div>
+                </div>
+                <div class="insight-item insight--action">
+                  <div class="insight-icon">4</div>
+                  <div class="insight-body">
+                    <strong>Envisager l'expansion internationale</strong>
+                    <p>Pour une couverture globale, ajouter des ETF européens et US à faible corrélation (ex: S&P500,
+                      DAX, Nikkei). Objectif : corrélation moyenne < 0.35.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scénarios -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">Analyse de Scénarios</h2>
+                <p class="card-subtitle">Impact sur le portefeuille · Stress tests DIENE MARS · Horizon 12 mois</p>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Scénario</th>
+                    <th>Prob.</th>
+                    <th>Impact</th>
+                    <th>P&L (€)</th>
+                    <th>Déclencheur</th>
+                    <th>Action</th>
+                    <th>Récupération</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--green"></div><strong>Rally haussier</strong>
+                      </div>
+                    </td>
+                    <td>35%</td>
+                    <td class="val-green">+22.5%</td>
+                    <td class="val-green" id="scenBull">+2 250 €</td>
+                    <td>CAC40 > 8 500 pts</td>
+                    <td>Renforcer les 3 premières positions de <span class="val-green" id="trigBull">+750 €</span></td>
+                    <td class="val-green">—</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--blue"></div><strong>Marché stable</strong>
+                      </div>
+                    </td>
+                    <td>40%</td>
+                    <td class="val-blue">+8.2%</td>
+                    <td class="val-blue" id="scenStable">+820 €</td>
+                    <td>Vol < 20%</td>
+                    <td>Rééquilibrer au T+90j · Collecter <span class="val-blue" id="trigDiv">+180 €</span> de
+                      dividendes</td>
+                    <td class="val-blue">—</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--amber"></div><strong>Correction</strong>
+                      </div>
+                    </td>
+                    <td>18%</td>
+                    <td class="val-amber">-18.7%</td>
+                    <td class="val-rose" id="scenCorr">-1 870 €</td>
+                    <td>CAC40 < 6 800 pts</td>
+                    <td>Stop-loss -12% · Réduire à <span class="val-amber" id="trigCorr">7 000 €</span> investi</td>
+                    <td class="val-amber">~5 mois</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--rose"></div><strong>Krach systémique</strong>
+                      </div>
+                    </td>
+                    <td>7%</td>
+                    <td class="val-rose">-35.2%</td>
+                    <td class="val-rose" id="scenKrach">-3 520 €</td>
+                    <td>VIX > 40 · CAC40 < 5 500</td>
+                    <td>Sortir <span class="val-rose" id="trigKrach">5 000 €</span> en cash · Puts CAC40</td>
+                    <td class="val-rose">~14 mois</td>
+                  </tr>
+                  <tr class="row-highlight">
+                    <td>
+                      <div class="asset-cell">
+                        <div class="alloc-dot alloc-dot--gradient"></div><strong>Espérance pondérée</strong>
+                      </div>
+                    </td>
+                    <td>100%</td>
+                    <td class="val-green"><strong>+7.03%</strong></td>
+                    <td class="val-green" id="scenExpected"><strong>+703 €</strong></td>
+                    <td colspan="2"><em>Σ (probabilité × impact) — rendement attendu sur 12 mois</em></td>
+                    <td class="val-green"><strong>Positif</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
